@@ -1,0 +1,18 @@
+#include <winver.h>
+#include "../src/res.h"
+
+// VersionInfo
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1 
+ FILETYPE VFT_APP
+BEGIN
+END
+
+// LoadIcon
+ID_ICON_APP ICON "favicon.ico"
+
+// LoadString
+//STRINGTABLE
+//BEGIN
+//END

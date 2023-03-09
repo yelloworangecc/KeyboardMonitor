@@ -14,7 +14,7 @@ file(GLOB_RECURSE SRC_LIST
 )
    
 file(GLOB_RECURSE RC_LIST
-    "${PROJECT_SOURCE_DIR}/resources/*.rc"
+    "${PROJECT_SOURCE_DIR}/res/*.rc"
 )
 
 add_executable(KeybordMonitor WIN32

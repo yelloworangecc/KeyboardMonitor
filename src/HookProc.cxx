@@ -1,40 +1,63 @@
 #include <windows.h>
 #include <winuser.h>
 #include <iostream>
- 
-#define EOF (-1)
- 
-#ifdef __cplusplus    // If used by C++ code, 
-extern "C" {          // we need to export the C interface
-#endif
+#include <ctime>
+#include "console.h"
 
-__declspec(dllexport) LRESULT KeyboardProc(int code, WPARAM wParam, LPARAM lParam)
+CONSOLE_INIT();
+
+bool WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID)
 {
-    std::cout<<"code="<<code<<",wParam="<<wParam<<",lParam="<<lParam<<std::endl;
+    switch(dwReason)
+    {
+        case DLL_PROCESS_ATTACH:
+            CONSOLE<<"DLL_PROCESS_ATTACH"<<ENDL;
+            DisableThreadLibraryCalls(hInstance);
+            CONSOLE.attach();
+            break;
+        case DLL_THREAD_ATTACH:
+            CONSOLE<<"DLL_THREAD_ATTACH"<<ENDL;
+            break;
+        case DLL_PROCESS_DETACH:
+            CONSOLE<<"DLL_PROCESS_DETACH"<<ENDL;
+            break;
+        case DLL_THREAD_DETACH:
+            CONSOLE<<"DLL_THREAD_DETACH"<<ENDL;
+            break;
+        default:
+            break;
+    }
+    return true;
+}
+
+__declspec(dllexport) LRESULT WINAPI KeyboardProc(int code, WPARAM wParam, LPARAM lParam)
+{
     switch (wParam)
     {
         case WM_KEYDOWN:
-            std::cout<<"WM_KEYDOWN"<<std::endl;
+            CONSOLE<<"\nWM_KEYDOWN"<<ENDL;
             break;
         case WM_KEYUP:
-            std::cout<<"WM_KEYUP"<<std::endl;
+            CONSOLE<<"\nWM_KEYUP"<<ENDL;
             break;
         case WM_SYSKEYDOWN:
-            std::cout<<"WM_SYSKEYDOWN"<<std::endl;
+            CONSOLE<<"\nWM_SYSKEYDOWN"<<ENDL;
             break;
         case WM_SYSKEYUP:
-            std::cout<<"WM_SYSKEYUP"<<std::endl;
+            CONSOLE<<"\nWM_SYSKEYUP"<<ENDL;
             break;
         default:
             break;
     }
 
     KBDLLHOOKSTRUCT* pKBDLLHOOKSTRUCT = (KBDLLHOOKSTRUCT*)lParam;
-    std::cout<<"vkCode="<<pKBDLLHOOKSTRUCT->vkCode<<std::endl;
-    std::cout<<"scanCode="<<pKBDLLHOOKSTRUCT->scanCode<<std::endl;
+    BYTE keyboardStat[256] = {0};
+    WORD key;
+    ToAscii(pKBDLLHOOKSTRUCT->vkCode,pKBDLLHOOKSTRUCT->scanCode,keyboardStat,&key,0);
+    char* pChar=(char*)&key;
+    for (auto keyItem:keyboardStat) CONSOLE<<HEX<<int(keyItem)<<',';
+    CONSOLE<<ENDL;
+    CONSOLE<<DEC<<pKBDLLHOOKSTRUCT->time<<": char1="<<pChar[0]<<", char2="<<pChar[1]<<", vkCode="<<HEX<<pKBDLLHOOKSTRUCT->vkCode
+        <<", scanCode="<<pKBDLLHOOKSTRUCT->scanCode<<DEC<<ENDL;
     return CallNextHookEx(0, code, wParam, lParam); 
 }
- 
-#ifdef __cplusplus
-}
-#endif
